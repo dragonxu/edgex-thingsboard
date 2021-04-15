@@ -1,0 +1,55 @@
+[Writable]
+LogLevel = 'INFO'
+
+[Service]
+Protocol = 'http'
+Host = "edgex-control-agent"
+Port = 49010
+ServerBindAddr = '0.0.0.0'
+Timeout = 45000
+BootTimeout = 30000
+CheckInterval = '10s'
+StartupMsg = "EdgeX Control Agent started"
+
+[Mqtt]
+Address = "tcp://localhost:1883"
+Username = "edgex-control-agent"
+RPCTopic = "v1/gateway/rpc"
+TelemetryTopic = "v1/gateway/telemetry"
+Timeout = 10000
+
+[Registry]
+Host = "edgex-control-agent"
+Port = 8500
+Type = "consul"
+
+[Clients]
+  [Clients.CoreData]
+  Protocol = 'http'
+  Host = 'edgex-core-data'
+  Port = 48080
+
+  [Clients.CoreMetadata]
+  Protocol = 'http'
+  Host = 'edgex-core-metadata'
+  Port = 48081
+
+  [Clients.CoreCommand]
+  Protocol = 'http'
+  Host = 'edgex-core-command'
+  Port = 48082
+
+  [Clients.SupportNotification]
+  Protocol = 'http'
+  Host = 'edgex-support-notifications'
+  Port = 48060
+
+  [Clients.SupportScheduler]
+  Protocol = 'http'
+  Host = 'edgex-support-scheduler'
+  Port = 48085
+
+  [Clients.SystemMgmntAgent]
+  Protocol = 'http'
+  Host = 'edgex-sys-mgmt-agent'
+  Port = 48090
