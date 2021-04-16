@@ -1,6 +1,11 @@
 [Writable]
 LogLevel = 'INFO'
 
+[Registry]
+Host = "localhost"
+Port = 8500
+Type = "consul"
+
 [Service]
 Protocol = 'http'
 Host = "localhost"
@@ -11,17 +16,20 @@ BootTimeout = 30000
 CheckInterval = '10s'
 StartupMsg = "EdgeX Control Agent started"
 
-[Mqtt]
+[MessagingQueue]
+Protocol = ""
+Host = ""
+Poart = ""
+Type = ""
+Topic = ""
+
+[ThingsboardMQTT]
 Address = "tcp://localhost:1883"
 Username = "edgex-control-agent"
-RPCTopic = "v1/gateway/rpc"
+RPCRequestTopic = "v1/gateway/rpc"
+RPCResponseTopic = "v1/gateway/rpc"
 TelemetryTopic = "v1/gateway/telemetry"
 Timeout = 10000
-
-[Registry]
-Host = "localhost"
-Port = 8500
-Type = "consul"
 
 [Clients]
   [Clients.CoreData]

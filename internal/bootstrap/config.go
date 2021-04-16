@@ -1,16 +1,30 @@
 package bootstrap
 
 import (
+	"fmt"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	bootstrapConfig "github.com/edgexfoundry/go-mod-bootstrap/config"
+	msgTypes "github.com/edgexfoundry/go-mod-messaging/pkg/types"
 )
-
-type ConfigurationClients map[string]bootstrapConfig.ClientInfo
 
 type WritableInfo struct {
 	LogLevel string
 }
 
-type MQTTInfo struct {
+type MessageQueueInfo struct {
+	Protocol string
+	Host     string
+	Port     int
+	Type     string
+	Topic    string
+	Optional map[string]string
+}
+
+func (m MessageQueueInfo) URL() string {
+	return fmt.Sprintf("%s://%s:%v", m.Protocol, m.Host, m.Port)
+}
+
+type ThingsboardMQTTInfo struct {
 	Address          string
 	Username         string
 	RPCRequestTopic  string
@@ -19,12 +33,21 @@ type MQTTInfo struct {
 	Timeout          int
 }
 
+func (t ThingsboardMQTTInfo) GetMQTTOption() *mqtt.ClientOptions {
+	return mqtt.NewClientOptions().
+		SetUsername(t.Username).
+		AddBroker(t.Address)
+}
+
+type ConfigurationClients map[string]bootstrapConfig.ClientInfo
+
 type ConfigurationStruct struct {
-	Writable WritableInfo
-	Service  bootstrapConfig.ServiceInfo
-	Mqtt     MQTTInfo
-	Registry bootstrapConfig.RegistryInfo
-	Clients  ConfigurationClients
+	Writable        WritableInfo
+	Service         bootstrapConfig.ServiceInfo
+	MessageQueue    MessageQueueInfo
+	Registry        bootstrapConfig.RegistryInfo
+	ThingsBoardMQTT ThingsboardMQTTInfo
+	Clients         ConfigurationClients
 }
 
 func (c *ConfigurationStruct) UpdateFromRaw(rawConfig interface{}) bool {
@@ -66,6 +89,14 @@ func (c *ConfigurationStruct) GetRegistryInfo() bootstrapConfig.RegistryInfo {
 	return c.Registry
 }
 
-func (c *ConfigurationStruct) GetMQTTInfo() MQTTInfo {
-	return c.Mqtt
+func (c ConfigurationStruct) GetMessagingConfig() msgTypes.MessageBusConfig {
+	return msgTypes.MessageBusConfig{
+		Type: c.MessageQueue.Type,
+		SubscribeHost: msgTypes.HostInfo{
+			Host:     c.MessageQueue.Host,
+			Port:     c.MessageQueue.Port,
+			Protocol: c.MessageQueue.Protocol,
+		},
+		Optional: c.MessageQueue.Optional,
+	}
 }

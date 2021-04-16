@@ -1,8 +1,10 @@
 # edgex-thingsboard
 
+用于将Edgex网关接入Thingsboard物联网平台。主要包括基于MQTT的遥测数据接入，和控制RPC接入。
+
 ## 使用方式
 
-1. 启动服务时，需配置Thingsboard服务端MQTT的连接信息。
+启动服务时，需配置Thingsboard服务端MQTT的连接信息。
 
 如使用配置文件方式：
 
@@ -40,7 +42,11 @@ MQTT_TIMEOUT: "10000"
 | Mqtt.TelemetryTopic | 遥测数据主题 | |
 | Mqtt.Timeout | 超时时间 | 单位为毫秒 |
 
-2. Thingsboard会按如下格式发送和接受MQTT消息：
+## 实现原理
+
+### 控制RPC
+
+1. Thingsboard会按如下格式发送MQTT消息给Edgex：
 
 发送消息： 
 
@@ -79,7 +85,7 @@ MQTT_TIMEOUT: "10000"
 | edgex-support-scheduler | 调度微服务 | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/support-scheduler/1.2.1 |
 | edgex-sys-mgmt-agent | 系统管理微服务 | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/support-scheduler/1.2.1 |
 
-接受消息：
+2. Edgex处理完RPC消息后，会返回如下MQTT消息给Thingsboard：
 
 ```json
 {
@@ -99,7 +105,10 @@ MQTT_TIMEOUT: "10000"
 | device | 设备名称 ||
 | data.success | 响应结果 ||
 
-3. 遥测数据会按如下格式发往Thingsboard
+
+### 遥测数据
+
+Edgex会将遥测数据按如下格式发往给Thingsboard：
 
 ```json
 {

@@ -1,8 +1,8 @@
 package thingsboard
 
-type TelemetryMessage map[string][]DeviceData
+type TelemetryMessage map[string][]DeviceDataPoint // deviceName -> []DeviceDataPoint
 
-type DeviceData struct {
+type DeviceDataPoint struct {
 	TS     int                    `json:"ts"`
 	Values map[string]interface{} `json:"values"`
 }

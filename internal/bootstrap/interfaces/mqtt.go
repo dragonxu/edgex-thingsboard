@@ -1,7 +1,7 @@
 package interfaces
 
-import "github.com/inspii/edgex-thingsboard/internal/bootstrap"
+import mqtt "github.com/eclipse/paho.mqtt.golang"
 
-type MQTTInfo interface {
-	GetMQTTInfo() bootstrap.MQTTInfo
+type MQTTOption interface {
+	GetMQTTOption() *mqtt.ClientOptions
 }

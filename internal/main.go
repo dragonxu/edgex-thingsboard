@@ -14,8 +14,9 @@ import (
 	edgex_thingsboard "github.com/inspii/edgex-thingsboard"
 	bootstrap2 "github.com/inspii/edgex-thingsboard/internal/bootstrap"
 	"github.com/inspii/edgex-thingsboard/internal/bootstrap/container"
-	"github.com/inspii/edgex-thingsboard/internal/bootstrap/handler/pubsub"
+	"github.com/inspii/edgex-thingsboard/internal/bootstrap/handler"
 	"os"
+	"time"
 )
 
 func Main(ctx context.Context, cancel context.CancelFunc, router *mux.Router, readyStream chan<- bool) {
@@ -42,7 +43,8 @@ func Main(ctx context.Context, cancel context.CancelFunc, router *mux.Router, re
 		startupTimer,
 		dic,
 		[]interfaces.BootstrapHandler{
-			pubsub.NewPubSub(httpServer, configuration).BootstrapHandler,
+			handler.NewMessaging(configuration).BootstrapHandler,
+			handler.NewMQTT(configuration.ThingsBoardMQTT, time.Duration(configuration.ThingsBoardMQTT.Timeout)*time.Millisecond).BootstrapHandler,
 			NewBootstrap(router).BootstrapHandler,
 			httpServer.BootstrapHandler,
 			message.NewBootstrap(ControlAgentServiceKey, edgex_thingsboard.Version).BootstrapHandler,
