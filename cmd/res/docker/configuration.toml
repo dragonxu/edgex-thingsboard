@@ -2,19 +2,19 @@
 LogLevel = 'INFO'
 
 [Registry]
-Host = "edgex-control-agent"
+Host = "edgex-thingsboard"
 Port = 8500
 Type = "consul"
 
 [Service]
 Protocol = 'http'
-Host = "edgex-control-agent"
+Host = "edgex-thingsboard"
 Port = 49010
 ServerBindAddr = '0.0.0.0'
 Timeout = 45000
 BootTimeout = 30000
 CheckInterval = '10s'
-StartupMsg = "EdgeX Control Agent started"
+StartupMsg = "EdgeX Thingsboard started"
 
 [MessagingQueue]
 Protocol = ""
@@ -25,7 +25,7 @@ Topic = ""
 
 [ThingsboardMQTT]
 Address = "tcp://localhost:1883"
-Username = "edgex-control-agent"
+Username = "edgex-thingsboard"
 RPCRequestTopic = "v1/gateway/rpc"
 RPCResponseTopic = "v1/gateway/rpc"
 TelemetryTopic = "v1/gateway/telemetry"

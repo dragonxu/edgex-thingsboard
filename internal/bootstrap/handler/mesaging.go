@@ -16,8 +16,8 @@ type Messaging struct {
 	messagingInfo interfaces.MessagingInfo
 }
 
-func NewMessaging(mqttInfo interfaces.MessagingInfo) Messaging {
-	return Messaging{
+func NewMessaging(mqttInfo interfaces.MessagingInfo) *Messaging {
+	return &Messaging{
 		messagingInfo: mqttInfo,
 	}
 }

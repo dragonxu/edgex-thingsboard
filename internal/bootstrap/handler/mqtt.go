@@ -19,8 +19,8 @@ type MQTT struct {
 	connectTimeout time.Duration
 }
 
-func NewMQTT(mqttInfo interfaces.MQTTOption, connectTimeout time.Duration) MQTT {
-	return MQTT{
+func NewMQTT(mqttInfo interfaces.MQTTOption, connectTimeout time.Duration) *MQTT {
+	return &MQTT{
 		mqttInfo:       mqttInfo,
 		connectTimeout: connectTimeout,
 	}

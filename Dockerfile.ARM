@@ -1,25 +1,35 @@
-FROM golang:1.16-alpine AS builder
-ENV CGO_ENABLED=0
+FROM arm64v8/golang:1.16-alpine AS builder
+ENV CGO_ENABLED=1
 ENV GOOS=linux
 ENV GOARCH=arm
 ENV GO111MODULE=on
 ENV GOPRIVATE=""
 ENV GOPROXY="https://goproxy.cn,direct"
 ENV GOSUMDB="sum.golang.google.cn"
-WORKDIR /root/edgex-control-agent/
+WORKDIR /root/edgex-thingsboard/
+
+# The main mirrors are giving us timeout issues on builds periodically.
+# So we can try these.
+RUN sed -e 's/dl-cdn[.]alpinelinux.org/mirrors.aliyun.com/g' -i~ /etc/apk/repositories
+RUN apk update && apk add zeromq-dev libsodium-dev pkgconfig build-base git
 
 ADD . .
 RUN go mod download \
     && go test --cover $(go list ./... | grep -v /vendor/) \
-    && go build -o main cmd/agent/main.go
+    && go build -o main cmd/main.go
 
 FROM arm64v8/alpine
 WORKDIR /root/
 ENV TZ Asia/Shanghai
 
-COPY --from=builder /root/edgex-control-agent/main edgex-control-agent
-COPY --from=builder /root/edgex-control-agent/cmd/agent/res/docker/configuration.toml res/configuration.toml
-RUN chmod +x edgex-control-agent
+# The main mirrors are giving us timeout issues on builds periodically.
+# So we can try these.
+RUN sed -e 's/dl-cdn[.]alpinelinux.org/mirrors.aliyun.com/g' -i~ /etc/apk/repositories
+RUN apk --no-cache add zeromq
 
-ENTRYPOINT ["/root/edgex-control-agent"]
+COPY --from=builder /root/edgex-thingsboard/main edgex-thingsboard
+COPY --from=builder /root/edgex-thingsboard/cmd/res/docker/configuration.toml res/configuration.toml
+RUN chmod +x edgex-thingsboard
+
+ENTRYPOINT ["/root/edgex-thingsboard"]
 CMD ["-cp=consul.http://edgex-core-consul:8500", "--registry", "--confdir=/root/res"]
