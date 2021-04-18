@@ -27,13 +27,13 @@ func (b *Bootstrap) BootstrapHandler(ctx context.Context, _ *sync.WaitGroup, _ s
 	loadRoutes(b.router, dic)
 
 	configuration := container.ConfigurationFrom(dic.Get)
-	serviceClients := container.ServiceRoutesFrom(dic.Get)
+	serviceRoutes := container.ServiceRoutesFrom(dic.Get)
 	lc := bootstrapContainer.LoggingClientFrom(dic.Get)
 
 	for serviceKey, serviceName := range b.listDefaultServices() {
 		serviceClient := configuration.Clients[serviceName]
 		serviceAddr := fmt.Sprintf("%s://%s:%d", serviceClient.Protocol, serviceClient.Host, serviceClient.Port)
-		serviceClients.Set(serviceKey, serviceAddr)
+		serviceRoutes.Set(serviceKey, serviceAddr)
 	}
 	dic.Update(di.ServiceConstructorMap{
 		container.ServiceRoutesName: func(get di.Get) interface{} {

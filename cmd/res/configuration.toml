@@ -16,12 +16,22 @@ BootTimeout = 30000
 CheckInterval = '10s'
 StartupMsg = "EdgeX Thingsboard started"
 
-[MessagingQueue]
-Protocol = ""
-Host = ""
-Poart = ""
-Type = ""
-Topic = ""
+[MessageQueue]
+Protocol = "tcp"
+Host = "localhost"
+Port = 5563
+Type = "zero"
+Topic = "events"
+[MessageQueue.Optional]
+  Username =""
+  Password =""
+  ClientId ="edgex-thingsboard"
+  Qos          =  "0"
+  KeepAlive    =  "10"
+  Retained     = "false"
+  AutoReconnect  = "true"
+  ConnectTimeout = "5"
+  SkipCertVerify = "false"
 
 [ThingsboardMQTT]
 Address = "tcp://localhost:1883"

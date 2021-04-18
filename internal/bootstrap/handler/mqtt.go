@@ -8,32 +8,28 @@ import (
 	"github.com/edgexfoundry/go-mod-bootstrap/bootstrap/startup"
 	"github.com/edgexfoundry/go-mod-bootstrap/di"
 	"github.com/inspii/edgex-thingsboard/internal/bootstrap/container"
-	"github.com/inspii/edgex-thingsboard/internal/bootstrap/interfaces"
 	"github.com/inspii/edgex-thingsboard/internal/mqtt_server"
 	"sync"
 	"time"
 )
 
 type MQTT struct {
-	mqttInfo       interfaces.MQTTOption
-	connectTimeout time.Duration
 }
 
-func NewMQTT(mqttInfo interfaces.MQTTOption, connectTimeout time.Duration) *MQTT {
-	return &MQTT{
-		mqttInfo:       mqttInfo,
-		connectTimeout: connectTimeout,
-	}
+func NewMQTT() *MQTT {
+	return &MQTT{}
 }
 
 func (p *MQTT) BootstrapHandler(ctx context.Context, wg *sync.WaitGroup, startupTimer startup.Timer, dic *di.Container) bool {
+	conf := container.ConfigurationFrom(dic.Get)
 	lc := bootstrapContainer.LoggingClientFrom(dic.Get)
+	timeout := time.Duration(conf.ThingsBoardMQTT.Timeout) * time.Millisecond
 
 	var client mqtt.Client
 	for startupTimer.HasNotElapsed() {
 		var err error
-		opt := p.mqttInfo.GetMQTTOption()
-		client, err = mqtt_server.NewClient(opt, p.connectTimeout)
+		opt := conf.ThingsBoardMQTT.GetMQTTOption()
+		client, err = mqtt_server.NewClient(opt, timeout)
 		if err == nil {
 			break
 		}
@@ -61,7 +57,7 @@ func (p *MQTT) BootstrapHandler(ctx context.Context, wg *sync.WaitGroup, startup
 		for {
 			select {
 			case <-ctx.Done():
-				client.Disconnect(uint(p.connectTimeout / time.Millisecond))
+				client.Disconnect(uint(timeout / time.Millisecond))
 				lc.Info("mqtt client disconnected")
 				return
 			}

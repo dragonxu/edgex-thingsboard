@@ -8,27 +8,24 @@ import (
 	"github.com/edgexfoundry/go-mod-bootstrap/di"
 	"github.com/edgexfoundry/go-mod-messaging/messaging"
 	"github.com/inspii/edgex-thingsboard/internal/bootstrap/container"
-	"github.com/inspii/edgex-thingsboard/internal/bootstrap/interfaces"
 	"sync"
 )
 
 type Messaging struct {
-	messagingInfo interfaces.MessagingInfo
 }
 
-func NewMessaging(mqttInfo interfaces.MessagingInfo) *Messaging {
-	return &Messaging{
-		messagingInfo: mqttInfo,
-	}
+func NewMessaging() *Messaging {
+	return &Messaging{}
 }
 
 func (p Messaging) BootstrapHandler(ctx context.Context, wg *sync.WaitGroup, startupTimer startup.Timer, dic *di.Container) bool {
+	conf := container.ConfigurationFrom(dic.Get)
 	lc := bootstrapContainer.LoggingClientFrom(dic.Get)
 
 	var client messaging.MessageClient
 	for startupTimer.HasNotElapsed() {
 		var err error
-		config := p.messagingInfo.GetMessagingConfig()
+		config := conf.GetMessagingConfig()
 		client, err = messaging.NewMessageClient(config)
 		if err == nil {
 			break

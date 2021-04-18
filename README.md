@@ -11,9 +11,7 @@
 ```
 [Mqtt]
 Address = "tcp://localhost:1883"
-Username = "edgex-control-agent"
-RequestStemTopic = "edgex-control/request/"
-ResponseStemTopic = "edgex-control/response/"
+Username = "edgex-thingsboard"
 RpcRequestTopic = "v1/gateway/rpc"
 RpcResponseTopic = "v1/gateway/rpc"
 TelemetryTopic = "v1/gateway/telemetry"
