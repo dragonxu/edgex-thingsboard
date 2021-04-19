@@ -2,7 +2,6 @@ package mqtt_server
 
 import (
 	"errors"
-	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
 	"time"
@@ -17,30 +16,25 @@ var (
 type Handler func(req []byte) (resp []byte, err error)
 
 type Server struct {
-	client        mqtt.Client
-	qos           byte
-	timeout       time.Duration
-	logger        logger.LoggingClient
+	pubsub        *PubSubClient
 	subscriptions []string
 }
 
 func New(client mqtt.Client, qos byte, timeout time.Duration, logger logger.LoggingClient) *Server {
+	pubsub := NewPubSubClient(client, qos, timeout, logger)
 	return &Server{
-		client:  client,
-		qos:     qos,
-		timeout: timeout,
-		logger:  logger,
+		pubsub: pubsub,
 	}
 }
 
 func (f Server) HandleFunc(requestTopic, replyTopic string, handler Handler) error {
-	err := f.subscribe(requestTopic, func(topic string, msg []byte) error {
+	err := f.pubsub.Subscribe(requestTopic, func(topic string, msg []byte) error {
 		res, err := handler(msg)
 		if err != nil {
 			return err
 		}
 
-		return f.publish(replyTopic, res)
+		return f.pubsub.Publish(replyTopic, res)
 	})
 	if err != nil {
 		return err
@@ -52,60 +46,11 @@ func (f Server) HandleFunc(requestTopic, replyTopic string, handler Handler) err
 
 func (f Server) Close() error {
 	for _, t := range f.subscriptions {
-		if err := f.unsubscribe(t); err != nil {
+		if err := f.pubsub.Unsubscribe(t); err != nil {
 			return err
 		}
 	}
 
 	f.subscriptions = nil
-	return nil
-}
-
-func (f *Server) publish(topic string, msg []byte) error {
-	token := f.client.Publish(topic, f.qos, false, msg)
-	if token.Error() != nil {
-		return token.Error()
-	}
-	ok := token.WaitTimeout(f.timeout)
-	if ok && token.Error() != nil {
-		return token.Error()
-	}
-	if !ok {
-		return errPublishTimeout
-	}
-	return nil
-}
-
-func (f *Server) subscribe(topic string, handler func(topic string, msg []byte) error) error {
-	token := f.client.Subscribe(topic, f.qos, func(client mqtt.Client, m mqtt.Message) {
-		if err := handler(m.Topic(), m.Payload()); err != nil {
-			f.logger.Warn(fmt.Sprintf("failed to handle message: err=%s, payload=%s", err, m.Payload()))
-		}
-	})
-	if token.Error() != nil {
-		return token.Error()
-	}
-	ok := token.WaitTimeout(f.timeout)
-	if ok && token.Error() != nil {
-		return token.Error()
-	}
-	if !ok {
-		return errSubscribeTimeout
-	}
-	return nil
-}
-
-func (f *Server) unsubscribe(topic string) error {
-	token := f.client.Unsubscribe(topic)
-	if token.Error() != nil {
-		return token.Error()
-	}
-	ok := token.WaitTimeout(f.timeout)
-	if ok && token.Error() != nil {
-		return token.Error()
-	}
-	if !ok {
-		return errUnsubscribeTimeout
-	}
 	return nil
 }

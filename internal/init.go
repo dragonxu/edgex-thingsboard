@@ -8,7 +8,6 @@ import (
 	"github.com/edgexfoundry/go-mod-bootstrap/di"
 	contracts "github.com/edgexfoundry/go-mod-core-contracts/clients"
 	"github.com/gorilla/mux"
-	"github.com/inspii/edgex-thingsboard/internal/bootstrap"
 	"github.com/inspii/edgex-thingsboard/internal/bootstrap/container"
 	"sync"
 )
@@ -35,11 +34,6 @@ func (b *Bootstrap) BootstrapHandler(ctx context.Context, _ *sync.WaitGroup, _ s
 		serviceAddr := fmt.Sprintf("%s://%s:%d", serviceClient.Protocol, serviceClient.Host, serviceClient.Port)
 		serviceRoutes.Set(serviceKey, serviceAddr)
 	}
-	dic.Update(di.ServiceConstructorMap{
-		container.ServiceRoutesName: func(get di.Get) interface{} {
-			return bootstrap.NewServiceRoutes()
-		},
-	})
 
 	if err := serveThingsboardRPC(dic); err != nil {
 		lc.Error(fmt.Sprintf("serve thingsboard rpc: %s", err.Error()))

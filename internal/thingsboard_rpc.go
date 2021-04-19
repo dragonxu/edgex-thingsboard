@@ -40,14 +40,15 @@ func (p thingsboardRPCHandler) handleRPC(req []byte) (resp []byte, err error) {
 
 func (p thingsboardRPCHandler) forwardHTTP(req *thingsboard.RPCRequestMessage) *thingsboard.RPCResponseMessage {
 	serviceRoutes := container.ServiceRoutesFrom(p.dic.Get)
+	serviceURL := req.Data.Service
 	if serviceAddr, ok := serviceRoutes.Get(req.Data.Service); ok {
-		req.Data.Service = serviceAddr
+		serviceURL = serviceAddr
 	}
 
 	var result interface{}
+	apiURL := serviceURL + req.Data.URI
 	timeout := time.Duration(req.Data.Timeout) * time.Millisecond
-	url := req.Data.Service + req.Data.URI
-	err := utils.RequestJSON(req.Data.Method, url, timeout, req.Data.Params, &result)
+	err := utils.RequestJSON(req.Data.Method, apiURL, timeout, req.Data.Params, &result)
 
 	httpStatus := utils.GetHTTPStatus(err)
 	errMsg := ""
