@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"errors"
 	bootstrapContainer "github.com/edgexfoundry/go-mod-bootstrap/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/di"
 	"github.com/inspii/edgex-thingsboard/internal/bootstrap/container"
@@ -18,7 +19,7 @@ func serveThingsboardRPC(dic *di.Container) error {
 	mqttTimeout := time.Duration(thingsboardMQTTConfig.Timeout) * time.Millisecond
 	handler := newThingsboardRPCHandler(dic)
 	server := mqtt_server.New(client, 0, mqttTimeout, logger)
-	return server.HandleFunc(thingsboardMQTTConfig.RPCRequestTopic, thingsboardMQTTConfig.RPCResponseTopic, handler.handleRPC)
+	return server.HandleFunc(thingsboard.RPCTopic, thingsboard.RPCTopic, handler.handleRPC)
 }
 
 type thingsboardRPCHandler struct {
@@ -29,12 +30,20 @@ func newThingsboardRPCHandler(dic *di.Container) *thingsboardRPCHandler {
 	return &thingsboardRPCHandler{dic}
 }
 
-func (p thingsboardRPCHandler) handleRPC(req []byte) (resp []byte, err error) {
+func (p *thingsboardRPCHandler) handleRPC(req []byte) (resp []byte, err error) {
+	logger := bootstrapContainer.LoggingClientFrom(p.dic.Get)
+
 	r := &thingsboard.RPCRequestMessage{}
 	err = r.FromBytes(req)
 	if err != nil {
+		logger.Warn("bad rpc request: %s", req)
 		return nil, err
 	}
+	if r.Data.Service == "" || r.Data.Method == "" || r.Data.URI == "" {
+		logger.Warn("bad rpc request: %s", req)
+		return nil, errors.New("bad rpc request")
+	}
+
 	return p.forwardHTTP(r).Bytes(), nil
 }
 
@@ -59,6 +68,7 @@ func (p thingsboardRPCHandler) forwardHTTP(req *thingsboard.RPCRequestMessage) *
 		ID:     req.Data.ID,
 		Device: req.Device,
 		Data: thingsboard.RPCResponseData{
+			Success:    err == nil,
 			HTTPStatus: httpStatus,
 			Message:    errMsg,
 			Result:     result,

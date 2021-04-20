@@ -7,6 +7,8 @@ import (
 	"strconv"
 )
 
+const TelemetryTopic = "v1/gateway/telemetry"
+
 type TelemetryMessage map[string][]DeviceDataPoint // deviceName -> []DeviceDataPoint
 
 func (m TelemetryMessage) Bytes() []byte {

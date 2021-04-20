@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 )
 
+const RPCTopic = "v1/gateway/rpc"
+
 type RPCRequestData struct {
 	ID      int         `json:"id"`
 	Service string      `json:"service"`
@@ -18,12 +20,12 @@ type RPCRequestMessage struct {
 	Data   RPCRequestData `json:"data"`
 }
 
-func (r *RPCRequestMessage) FromBytes(data []byte) error {
-	return json.Unmarshal(data, r)
+func (m *RPCRequestMessage) FromBytes(data []byte) error {
+	return json.Unmarshal(data, m)
 }
 
-func (r RPCRequestMessage) Bytes() []byte {
-	bytes, _ := json.Marshal(r)
+func (m RPCRequestMessage) Bytes() []byte {
+	bytes, _ := json.Marshal(m)
 	return bytes
 }
 
@@ -40,11 +42,11 @@ type RPCResponseMessage struct {
 	Data   RPCResponseData `json:"data"`
 }
 
-func (r *RPCResponseMessage) FromBytes(data []byte) error {
-	return json.Unmarshal(data, r)
+func (m *RPCResponseMessage) FromBytes(data []byte) error {
+	return json.Unmarshal(data, m)
 }
 
-func (r RPCResponseMessage) Bytes() []byte {
-	bytes, _ := json.Marshal(r)
+func (m RPCResponseMessage) Bytes() []byte {
+	bytes, _ := json.Marshal(m)
 	return bytes
 }

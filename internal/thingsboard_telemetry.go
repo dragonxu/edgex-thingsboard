@@ -55,7 +55,7 @@ func forwardTelemetry(dic *di.Container) {
 					continue
 				}
 
-				if err := pubsubClient.Publish(conf.ThingsBoardMQTT.TelemetryTopic, msg.Bytes()); err != nil {
+				if err := pubsubClient.Publish(thingsboard.TelemetryTopic, msg.Bytes()); err != nil {
 					logger.Error(fmt.Sprintf("publish telemetry message error: %s", err))
 					continue
 				}

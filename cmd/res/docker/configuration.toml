@@ -36,9 +36,7 @@ Topic = "events"
 [ThingsboardMQTT]
 Address = "tcp://localhost:1883"
 Username = "edgex-thingsboard"
-RPCRequestTopic = "v1/gateway/rpc"
-RPCResponseTopic = "v1/gateway/rpc"
-TelemetryTopic = "v1/gateway/telemetry"
+ClientId = ""
 Timeout = 10000
 
 [Clients]

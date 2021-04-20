@@ -25,18 +25,17 @@ func (m MessageQueueInfo) URL() string {
 }
 
 type ThingsboardMQTTInfo struct {
-	Address          string
-	Username         string
-	RPCRequestTopic  string
-	RPCResponseTopic string
-	TelemetryTopic   string
-	Timeout          int
+	Address  string
+	Username string
+	ClientId string
+	Timeout  int
 }
 
 func (t ThingsboardMQTTInfo) GetMQTTOption() *mqtt.ClientOptions {
 	return mqtt.NewClientOptions().
+		AddBroker(t.Address).
 		SetUsername(t.Username).
-		AddBroker(t.Address)
+		SetClientID(t.ClientId)
 }
 
 type ConfigurationClients map[string]bootstrapConfig.ClientInfo

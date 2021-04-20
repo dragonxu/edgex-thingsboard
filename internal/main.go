@@ -28,9 +28,6 @@ func Main(ctx context.Context, cancel context.CancelFunc, router *mux.Router, re
 		container.ConfigurationName: func(get di.Get) interface{} {
 			return configuration
 		},
-		container.ServiceRoutesName: func(get di.Get) interface{} {
-			return bootstrap2.NewServiceRoutes()
-		},
 	})
 
 	httpServer := httpserver.NewBootstrap(router, true)
