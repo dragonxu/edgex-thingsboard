@@ -1,12 +1,18 @@
-# edgex-thingsboard
+# Edgex-thingsboard
 
-用于将Edgex网关接入Thingsboard物联网平台。主要包括基于MQTT的遥测数据接入，和控制RPC接入。
+[中文](README.cn.md)
 
-## 使用方式
+A micro service that connects Edgex to Thingsboard by MQTT. 
 
-启动服务时，需配置Thingsboard服务端MQTT的连接信息。
+- Connect Edgex devices to Thingsboard
+- Report Edgex devices events to Thingsboard
+- Handle RPC requests from Thingsboard
 
-如使用配置文件方式：
+## Usage
+
+Before start service, you need to configure Thingsboard MQTT client.
+
+Configure by file:
 
 ```
 [Mqtt]
@@ -16,7 +22,7 @@ ClientId = "client-id"
 Timeout = 10000
 ```
 
-或使用环境变量方式：
+Or configure by environment variables:
 
 ```
 MQTT_ADDRESS: tcp://localhost:1883
@@ -25,22 +31,24 @@ MQTT_CLIENTID: client-id
 MQTT_TIMEOUT: "10000"
 ```
 
-其中：
+While: 
 
-|参数|名称|描述|
+|Arguments|Name|Description|
 |---|---|---|
-| Mqtt.Address | MQTT Broker 地址| |
-| Mqtt.Username | 用户名　| |
-| Mqtt.ClientId | 客户端ID | |
-| Mqtt.Timeout | 超时时间 | 单位为毫秒 |
+| Mqtt.Address | MQTT Address | |
+| Mqtt.Username | Username　| |
+| Mqtt.ClientId | Client ID | |
+| Mqtt.Timeout | Timeout | unit: millisecond |
 
-## 实现原理
+## Build
 
-### 连接设备
+If you are using zeroMQ as your message bus be sure to first [install the zeroMQ library](https://github.com/edgexfoundry/edgex-go#zeromq).
 
-1. Edgex会按如下格式发送MQTT消息给Thingsboard：
+## Internal
 
-发送消息：
+### Connecting Devices
+
+1. Edgex-thingsboard will send MQTT messages to Thingsboard while starting:
 
 ```json
 {
@@ -48,17 +56,15 @@ MQTT_TIMEOUT: "10000"
 }
 ```
 
-其中：
+While:
 
-|参数|名称|描述|
+|Arguments|Name|Description|
 |---|---|---|
-| device | 设备名称 ||
+| device | Device Name ||
 
-### 控制RPC
+### RPC
 
-1. Thingsboard会按如下格式发送MQTT消息给Edgex：
-
-发送消息： 
+1. Thingsboard will send MQTT messages to Edgex-thingsboard:
 
 ```json
 {
@@ -74,28 +80,28 @@ MQTT_TIMEOUT: "10000"
 }
 ```
 
-其中： 
+While:
 
-|参数|名称|描述|
+|Arguments|Name|Description|
 |---|---|---|
-| device | 设备名称 ||
-| data.id | 请求ID ||
-| data.service | 微服务名称 ||
-| data.uri | HTTP接口地址 ||
-| data.method | HTTP请求方法 ||
-| data.params | HTTP请求参数 ||
-| data.timeout | HTTP请求超时时间 | 单位为毫秒 |
+| device | Device Name ||
+| data.id | Request ID ||
+| data.service | Service Name ||
+| data.uri | HTTP URI ||
+| data.method | HTTP Method ||
+| data.params | HTTP Parameters ||
+| data.timeout | HTTP Timeout | unit: millisecond |
 
-|service值|对应微服务名称|微服务接口地址|
+|Service Key|Service Name|Api Doc|
 |---|---|---|
-| edgex-core-command | 命令微服务 | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/core-command |
-| edgex-core-data | 核心数据微服务 | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/core-command |
-| edgex-core-metadata | 元数据微服务 | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/core-command |
-| edgex-support-notifications | 通知微服务 | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/core-command |
-| edgex-support-scheduler | 调度微服务 | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/support-scheduler/1.2.1 |
-| edgex-sys-mgmt-agent | 系统管理微服务 | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/support-scheduler/1.2.1 |
+| edgex-core-command | Core Command Service | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/core-command |
+| edgex-core-data | Core Data Service | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/core-command |
+| edgex-core-metadata | Meta Data Service| https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/core-command |
+| edgex-support-notifications | Notification Service | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/core-command |
+| edgex-support-scheduler | Scheduler Service | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/support-scheduler/1.2.1 |
+| edgex-sys-mgmt-agent | System Management Service | https://app.swaggerhub.com/apis-docs/EdgeXFoundry1/support-scheduler/1.2.1 |
 
-2. Edgex处理完RPC消息后，会返回如下MQTT消息给Thingsboard：
+2. After Edgex-thingsboard processed the request, it will reply MQTT messages to Thingsboard:
 
 ```json
 {
@@ -110,21 +116,20 @@ MQTT_TIMEOUT: "10000"
 }
 ```
 
-其中：
+While:
 
-|参数|名称|描述|
+|Arguments|Name|Description|
 |---|---|---|
-| id | 请求ID ||
-| device | 设备名称 ||
-| data.http_status | HTTP状态码 ||
-| data.success | 响应结果 ||
-| data.message | 响应错误信息 ||
-| data.result | 响应数据 ||
+| id | Request ID ||
+| device | Device Name ||
+| data.http_status | HTTP Status ||
+| data.success | Response Status ||
+| data.message | Response Error Message ||
+| data.result | Response Data ||
 
+### Telemetry
 
-### 遥测数据
-
-Edgex会将遥测数据按如下格式发往给Thingsboard：
+Edgex-thingsboard will report devices events to Thingsboard:
 
 ```json
 {
