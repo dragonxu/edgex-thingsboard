@@ -7,22 +7,22 @@ import (
 	"strconv"
 )
 
-const TelemetryTopic = "v1/gateway/telemetry"
+const GatewayTelemetryTopic = "v1/gateway/telemetry"
 
-type TelemetryMessage map[string][]DeviceDataPoint // deviceName -> []DeviceDataPoint
+type GatewayTelemetryMessage map[string][]GatewayDeviceDataPoint // deviceName -> []GatewayDeviceDataPoint
 
-func (m TelemetryMessage) Bytes() []byte {
+func (m GatewayTelemetryMessage) Bytes() []byte {
 	b, _ := json.Marshal(m)
 	return b
 }
 
-type DeviceDataPoint struct {
+type GatewayDeviceDataPoint struct {
 	TS     int                    `json:"ts"`
 	Values map[string]interface{} `json:"values"`
 }
 
-func AdapterTelemetryMessage(event *contract.Event) (TelemetryMessage, error) {
-	msgs := make(TelemetryMessage)
+func AdapterGatewayTelemetryMessage(event *contract.Event) (GatewayTelemetryMessage, error) {
+	msgs := make(GatewayTelemetryMessage)
 	for _, reading := range event.Readings {
 		value, err := adapterTelemetryValue(reading.ValueType, reading.Value)
 		if err != nil {
@@ -30,7 +30,7 @@ func AdapterTelemetryMessage(event *contract.Event) (TelemetryMessage, error) {
 		}
 
 		ts := int(reading.Origin / 1000000)
-		dataPoint := DeviceDataPoint{
+		dataPoint := GatewayDeviceDataPoint{
 			TS: ts,
 			Values: map[string]interface{}{
 				reading.Name: value,
@@ -39,7 +39,7 @@ func AdapterTelemetryMessage(event *contract.Event) (TelemetryMessage, error) {
 		if devicePoints, ok := msgs[event.Device]; ok {
 			devicePoints = append(devicePoints, dataPoint)
 		} else {
-			msgs[reading.Device] = []DeviceDataPoint{dataPoint}
+			msgs[reading.Device] = []GatewayDeviceDataPoint{dataPoint}
 		}
 	}
 	return msgs, nil

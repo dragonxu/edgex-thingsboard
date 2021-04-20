@@ -1,7 +1,7 @@
 FROM arm64v8/golang:1.16-alpine AS builder
 ENV CGO_ENABLED=1
 ENV GOOS=linux
-ENV GOARCH=arm
+ENV GOARCH=arm64
 ENV GO111MODULE=on
 ENV GOPRIVATE=""
 ENV GOPROXY="https://goproxy.cn,direct"

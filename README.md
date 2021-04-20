@@ -12,20 +12,16 @@
 [Mqtt]
 Address = "tcp://localhost:1883"
 Username = "edgex-thingsboard"
-RpcRequestTopic = "v1/gateway/rpc"
-RpcResponseTopic = "v1/gateway/rpc"
-TelemetryTopic = "v1/gateway/telemetry"
+ClientId = "client-id"
 Timeout = 10000
 ```
 
 或使用环境变量方式：
 
 ```
-MQTT_ADDRESS: tcp://192.168.5.88:1883
-MQTT_USERNAME: edgex-control-agent
-MQTT_RPCREQUESTTOPIC = "v1/gateway/rpc"
-MQTT_RPCRESPONSETOPIC = "v1/gateway/rpc"
-MQTT_TELEMETRYTOPIC = "v1/gateway/telemetry"
+MQTT_ADDRESS: tcp://localhost:1883
+MQTT_USERNAME: edgex-thingsboard
+MQTT_CLIENTID: client-id
 MQTT_TIMEOUT: "10000"
 ```
 
@@ -35,12 +31,28 @@ MQTT_TIMEOUT: "10000"
 |---|---|---|
 | Mqtt.Address | MQTT Broker 地址| |
 | Mqtt.Username | 用户名　| |
-| Mqtt.RpcRequestTopic | 控制请求主题 | |
-| Mqtt.RpcResponseTopic | 控制响应主题 | |
-| Mqtt.TelemetryTopic | 遥测数据主题 | |
+| Mqtt.ClientId | 客户端ID | |
 | Mqtt.Timeout | 超时时间 | 单位为毫秒 |
 
 ## 实现原理
+
+### 连接设备
+
+1. Edgex会按如下格式发送MQTT消息给Thingsboard：
+
+发送消息：
+
+```json
+{
+  "device": "Virtual-Sensor-01"
+}
+```
+
+其中：
+
+|参数|名称|描述|
+|---|---|---|
+| device | 设备名称 ||
 
 ### 控制RPC
 
@@ -90,7 +102,10 @@ MQTT_TIMEOUT: "10000"
   "device": "Virtual-Sensor-01",
   "id": 4,
   "data": {
-    "success": true
+    "http_status": 200,
+    "success": true,
+    "message": "",
+    "result": {}
   }
 }
 ```
@@ -101,7 +116,10 @@ MQTT_TIMEOUT: "10000"
 |---|---|---|
 | id | 请求ID ||
 | device | 设备名称 ||
+| data.http_status | HTTP状态码 ||
 | data.success | 响应结果 ||
+| data.message | 响应错误信息 ||
+| data.result | 响应数据 ||
 
 
 ### 遥测数据

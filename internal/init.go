@@ -55,16 +55,9 @@ func (b *Bootstrap) BootstrapHandler(ctx context.Context, _ *sync.WaitGroup, _ s
 		},
 	})
 
-	if err := connectGatewayDevices(dic); err != nil {
-		lc.Error(fmt.Sprintf("connect thingsboard devices: %s", err.Error()))
-		return false
-	}
-	if err := serveThingsboardRPC(dic); err != nil {
-		lc.Error(fmt.Sprintf("serve thingsboard rpc: %s", err.Error()))
-		return false
-	}
-	if err := serveThingsboardTelemetry(dic); err != nil {
-		lc.Error(fmt.Sprintf("serve thingsboard telemetry: %s", err.Error()))
+	thingsboardGateway := NewThingsboardGateway(dic)
+	if err := thingsboardGateway.Serve(); err != nil {
+		lc.Error(fmt.Sprintf("servve thingsboard gateway: %s", err.Error()))
 		return false
 	}
 
