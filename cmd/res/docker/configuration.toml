@@ -9,7 +9,7 @@ Type = "consul"
 [Service]
 Protocol = 'http'
 Host = "edgex-thingsboard"
-Port = 49010
+Port = 49020
 ServerBindAddr = '0.0.0.0'
 Timeout = 45000
 BootTimeout = 30000
