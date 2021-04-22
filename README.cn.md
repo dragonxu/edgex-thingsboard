@@ -73,7 +73,7 @@ MQTT_TIMEOUT: "10000"
     "service": "edgex-core-command",
     "uri": "/api/version",
     "params": {},
-    "timeout": 10000
+    "api_timeout": 10000
   }
 }
 ```
@@ -88,7 +88,7 @@ MQTT_TIMEOUT: "10000"
 | data.uri | HTTP接口地址 ||
 | data.method | HTTP请求方法 ||
 | data.params | HTTP请求参数 ||
-| data.timeout | HTTP请求超时时间 | 单位为毫秒 |
+| data.api_timeout | HTTP请求超时时间 | 单位为毫秒 |
 
 |service值|对应微服务名称|微服务接口地址|
 |---|---|---|
