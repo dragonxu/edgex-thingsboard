@@ -16,6 +16,10 @@ import (
 	"time"
 )
 
+const (
+	defaultAPITimeout = 60 * time.Second
+)
+
 type ThingsboardGateway struct {
 	dic *di.Container
 }
@@ -105,7 +109,11 @@ func (t *ThingsboardGateway) forwardHTTP(req *thingsboard.GatewayRPCRequestMessa
 
 	var result interface{}
 	apiURL := serviceURL + req.Data.URI
-	timeout := time.Duration(req.Data.Timeout) * time.Millisecond
+
+	timeout := defaultAPITimeout
+	if req.Data.APITimeout > 0 {
+		timeout = time.Duration(req.Data.APITimeout) * time.Millisecond
+	}
 	err := utils.RequestJSON(req.Data.Method, apiURL, timeout, req.Data.Params, &result)
 
 	httpStatus := utils.GetHTTPStatus(err)

@@ -7,12 +7,12 @@ import (
 const GatewayRPCTopic = "v1/gateway/rpc"
 
 type GatewayRPCRequestData struct {
-	ID      int         `json:"id"`
-	Service string      `json:"service"`
-	URI     string      `json:"uri"`
-	Method  string      `json:"method"`
-	Params  interface{} `json:"params"`
-	Timeout int         `json:"timeout"` // 毫秒
+	ID         int         `json:"id"`
+	Service    string      `json:"service"`
+	URI        string      `json:"uri"`
+	Method     string      `json:"method"`
+	Params     interface{} `json:"params"`
+	APITimeout int         `json:"api_timeout"` // 毫秒
 }
 
 type GatewayRPCRequestMessage struct {
