@@ -38,6 +38,10 @@ MQTT_TIMEOUT: "10000"
 | Mqtt.ClientId | 客户端ID | |
 | Mqtt.Timeout | 超时时间 | 单位为毫秒 |
 
+## 编译
+
+使用消息总线 zeroMQ [需要先安装 zeroMQ 库](https://github.com/edgexfoundry/edgex-go#zeromq).
+
 ## 实现原理
 
 ### 连接设备

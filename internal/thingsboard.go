@@ -83,11 +83,12 @@ func (t *ThingsboardGateway) serveRPC() error {
 	return server.HandleFunc(thingsboard.GatewayRPCTopic, thingsboard.GatewayRPCTopic, t.handleRPC)
 }
 
-func (t *ThingsboardGateway) handleRPC(req []byte) (resp []byte, err error) {
+func (t *ThingsboardGateway) handleRPC(req []byte) ([]byte, error) {
 	logger := bootstrapContainer.LoggingClientFrom(t.dic.Get)
+	logger.Debug(fmt.Sprintf("receive rpc message: %s", req))
 
 	r := &thingsboard.GatewayRPCRequestMessage{}
-	err = r.FromBytes(req)
+	err := r.FromBytes(req)
 	if err != nil {
 		logger.Warn("bad rpc request: %s", req)
 		return nil, err
@@ -97,7 +98,9 @@ func (t *ThingsboardGateway) handleRPC(req []byte) (resp []byte, err error) {
 		return nil, errors.New("bad rpc request")
 	}
 
-	return t.forwardHTTP(r).Bytes(), nil
+	resp := t.forwardHTTP(r).Bytes()
+	logger.Debug(fmt.Sprintf("rpc message response: %s", resp))
+	return resp, nil
 }
 
 func (t *ThingsboardGateway) forwardHTTP(req *thingsboard.GatewayRPCRequestMessage) *thingsboard.GatewayRPCResponseMessage {
@@ -179,6 +182,7 @@ func (t *ThingsboardGateway) forwardTelemetry() {
 					logger.Error(fmt.Sprintf("publish telemetry message error: %s", err))
 					continue
 				}
+				logger.Debug(fmt.Sprintf("telemetry reported: %s", msg.Bytes()))
 			}
 		case err := <-errCh:
 			if err != nil {
